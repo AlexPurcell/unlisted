@@ -13,7 +13,7 @@ lead generation.
 ![No dependencies](https://img.shields.io/badge/dependencies-zero-brightgreen)
 ![No API key](https://img.shields.io/badge/API%20key-none%20needed-brightgreen)
 
-**Live demo: add your deployed URL here once published · No account · No API key · No backend**
+**No hosted demo — clone it and run it yourself · No account · No API key · No backend**
 
 ## What it is
 
@@ -71,47 +71,12 @@ revenue paths that don't compromise that:
 2. **The tool as a portfolio piece / lead magnet for freelance work**, not
    a product in itself — "I built the tool you're using right now" is a
    strong opening line in outreach to the exact businesses it surfaces.
-3. **Traffic-driven, later**: if it ranks for searches like "find local
-   businesses without a website," a simple non-intrusive ad slot or a
-   sponsor line becomes viable once there's real usage data to show.
 
-None of this requires a backend or a schema change — it's additive to the
-static page whenever you're ready.
+None of this requires a backend or a schema change — it's additive whenever
+you're ready.
 
 ### What only you can do (account creation is off-limits for the assistant)
-- Create the Ko-fi account and get your real tip-jar link
-- Pick and set up a deploy target (Cloudflare Pages / Netlify / GitHub Pages)
-  — see below
-- Register a domain, if you want one nicer than `*.pages.dev`
-
-## Deploying
-
-Any static host works. Drag-and-drop options that need no CLI:
-
-- **[Cloudflare Pages](https://pages.cloudflare.com/)** — free, drag the `unlisted/` folder in
-- **[Netlify Drop](https://app.netlify.com/drop)** — free, same idea, no account needed for a one-off deploy
-- **GitHub Pages** — push this folder to a repo, enable Pages in Settings
-
-There is no server-side config, no environment variables, and no secrets to
-set. If you fork this and see meaningful traffic, consider pointing
-`OVERPASS_ENDPOINTS` in `app.js` at your own Overpass instance (or a paid one)
-rather than leaning on the free public mirrors — see the note at the top of
-that file.
-
-### After you deploy: 3 placeholders to fill in
-
-`index.html` ships with honest placeholders instead of a guessed live URL —
-find and replace once you know your real address:
-
-1. `https://YOUR-DOMAIN-HERE/` (4 occurrences — canonical link, Open Graph
-   and Twitter meta tags) → your real deployed URL
-2. `href="https://github.com"` on the `#repoLink` "Source" link in the header
-   → your real repo URL
-3. (optional) the JSON-LD block's `description` if you change the pitch
-
-```bash
-sed -i '' 's|https://YOUR-DOMAIN-HERE/|https://your-real-domain.com/|g' index.html
-```
+- Create the Ko-fi account and get your real tip-jar link, if you want one
 
 ## Rate limits and etiquette
 
@@ -158,6 +123,7 @@ find it that a README alone can't do:
   ```bash
   gh repo edit --add-topic web-development,lead-generation,openstreetmap,local-seo,freelance,web-design,no-code,javascript,static-site
   ```
-- **Repo description & URL** — fill in the "About" panel on the repo page
-  with a one-line pitch and your deployed URL; GitHub surfaces both in search
-  and in topic listings.
+- **Repo description** — fill in the one-line pitch in the "About" panel on
+  the repo page; GitHub surfaces it in search and in topic listings. No URL
+  needed — this project lives entirely on GitHub, run locally by whoever
+  clones it.
