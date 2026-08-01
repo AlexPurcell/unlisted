@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unlisted — find local businesses with no website</title>
+<meta name="description" content="Search any town on earth and get a ranked list of real local businesses with no website. Free, open source, runs entirely in your browser. Built for web designers and agencies looking for clients.">
+<meta name="keywords" content="find businesses without a website, local business leads, web design leads, freelance web designer tool, cold outreach leads, no-website businesses, OpenStreetMap business search, lead generation for web designers">
+<meta name="author" content="Unlisted contributors">
+<link rel="canonical" href="https://YOUR-DOMAIN-HERE/">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="Unlisted — find local businesses with no website">
+<meta property="og:description" content="Search any town on earth and get a ranked, exportable list of real local businesses with no website. Free, open source, no account, no API key.">
+<meta property="og:url" content="https://YOUR-DOMAIN-HERE/">
+<meta property="og:site_name" content="Unlisted">
+<meta property="og:image" content="https://YOUR-DOMAIN-HERE/og-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Unlisted — find local businesses with no website">
+<meta name="twitter:description" content="Search any town on earth and get a ranked, exportable list of real local businesses with no website. Free, open source, no account, no API key.">
+<meta name="twitter:image" content="https://YOUR-DOMAIN-HERE/og-card.png">
+
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%230A0F18'/><circle cx='16' cy='16' r='7' fill='none' stroke='%23FF7A29' stroke-width='2.5' stroke-dasharray='3 3'/></svg>">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Unlisted",
+  "description": "Search any town on earth and get a ranked, exportable list of real local businesses with no website.",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Any (runs in browser)",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Public+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="topbar">
+  <div class="wrap topbar-in">
+    <a class="brand" href="./">
+      <svg width="22" height="22" viewBox="0 0 32 32" aria-hidden="true">
+        <circle cx="16" cy="16" r="7" fill="none" stroke="currentColor" stroke-width="2.5" stroke-dasharray="3 3"/>
+      </svg>
+      <span>Unlisted</span>
+    </a>
+    <nav class="topnav">
+      <a href="#how">How it works</a>
+      <a href="#faq">FAQ</a>
+      <a class="ghost-link" id="repoLink" href="https://github.com" rel="noopener">Source</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+  <section class="hero">
+    <div class="wrap">
+      <h1>Every town has businesses<br><em>with no website.</em></h1>
+      <p class="lede">
+        Search anywhere on earth. Get a ranked, exportable list of real local
+        businesses that have no website at all &mdash; the shortest client list
+        in web design.
+      </p>
+
+      <form class="search" id="searchForm" autocomplete="off">
+        <label class="sr-only" for="placeInput">Town, city, or region</label>
+        <input id="placeInput" name="place" type="text"
+               placeholder="Asheville, North Carolina" spellcheck="false" required>
+        <button type="submit" id="searchBtn">Search</button>
+      </form>
+
+      <div class="examples" aria-label="Example searches">
+        <span>Try</span>
+        <button class="chip" data-place="Asheville, North Carolina">Asheville, NC</button>
+        <button class="chip" data-place="Bozeman, Montana">Bozeman, MT</button>
+        <button class="chip" data-place="Galway, Ireland">Galway, IE</button>
+        <button class="chip" data-place="Hastings, England">Hastings, UK</button>
+      </div>
+
+      <p class="nokey">
+        No account. No API key. Nothing is sent to a server we own &mdash;
+        your browser queries OpenStreetMap directly.
+      </p>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <div id="status" class="status" role="status" aria-live="polite"></div>
+  </div>
+
+  <section class="results-shell wrap" id="resultsShell" hidden>
+
+    <div class="statbar" id="statbar"></div>
+
+    <div class="toolbar">
+      <div class="filters">
+        <div class="seg" role="group" aria-label="Filter by web presence">
+          <button class="seg-btn" data-presence="all">All</button>
+          <button class="seg-btn is-on" data-presence="none">No website</button>
+          <button class="seg-btn" data-presence="social">Social only</button>
+        </div>
+        <label class="sel">
+          <span class="sr-only">Filter by category</span>
+          <select id="catFilter"><option value="">All categories</option></select>
+        </label>
+        <label class="check">
+          <input type="checkbox" id="phoneOnly">
+          <span>Has phone number</span>
+        </label>
+        <label class="check">
+          <input type="checkbox" id="includeChains">
+          <span>Include chains</span>
+        </label>
+      </div>
+      <button class="export" id="exportBtn">Export CSV</button>
+    </div>
+
+    <div class="tablewrap">
+      <table id="resultsTable">
+        <thead>
+          <tr>
+            <th class="c-score" scope="col"><button class="sortbtn" data-sort="score">Score</button></th>
+            <th scope="col"><button class="sortbtn" data-sort="name">Business</button></th>
+            <th scope="col">Type</th>
+            <th scope="col">Presence</th>
+            <th scope="col">Address</th>
+            <th scope="col">Phone</th>
+          </tr>
+        </thead>
+        <tbody id="resultsBody"></tbody>
+      </table>
+    </div>
+    <p class="tablenote" id="tableNote"></p>
+  </section>
+
+  <section class="how" id="how">
+    <div class="wrap">
+      <h2>How it works</h2>
+      <ol class="steps">
+        <li>
+          <span class="num">01</span>
+          <h3>Your browser geocodes the place</h3>
+          <p>The town name you type is resolved to a bounding box by Nominatim,
+             OpenStreetMap&rsquo;s own geocoder. Cached locally so the same search
+             never asks twice.</p>
+        </li>
+        <li>
+          <span class="num">02</span>
+          <h3>It queries OpenStreetMap directly</h3>
+          <p>An Overpass API query pulls every mapped shop, restaurant, trade,
+             clinic, salon and office inside that box &mdash; with whatever contact
+             tags the map holds for each one.</p>
+        </li>
+        <li>
+          <span class="num">03</span>
+          <h3>Gaps get scored, not guessed</h3>
+          <p>Businesses are ranked by how reachable they are and how large the
+             gap is. A missing website tag is reported as exactly that &mdash;
+             a missing tag, worth one phone call to confirm.</p>
+        </li>
+      </ol>
+
+      <div class="callout">
+        <h3>What this does not claim</h3>
+        <p>
+          OpenStreetMap is community-maintained, so a business with no
+          <code>website</code> tag has no website <em>on the map</em>. Most of the
+          time that means no website at all, and sometimes it means nobody has
+          added it yet. This tool never collapses that distinction &mdash; every
+          row says which it is, and confirming takes one search or one call.
+          A lead list that lies to you is worse than no list.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="faq" id="faq">
+    <div class="wrap">
+      <h2>Questions</h2>
+      <div class="qa">
+        <details>
+          <summary>Is this legal to use for client outreach?</summary>
+          <p>The data is OpenStreetMap, published as open data under the ODbL
+             licence, and this tool attributes it as required. These are publicly
+             listed business details, not personal data. Your outreach itself is
+             still yours to get right &mdash; follow the anti-spam rules that apply
+             where you and the business are (CAN-SPAM in the US, GDPR and PECR in
+             the UK and EU).</p>
+        </details>
+        <details>
+          <summary>Why is my town showing so few businesses?</summary>
+          <p>Coverage depends on how well volunteers have mapped your area. Dense
+             cities are mapped thoroughly; some rural areas are thin. If your town
+             looks sparse, that is a gap in the map rather than a gap in the town
+             &mdash; and adding businesses to OpenStreetMap is free.</p>
+        </details>
+        <details>
+          <summary>Do you store my searches?</summary>
+          <p>There is no server to store them on. This is a static page; the
+             requests go from your browser straight to OpenStreetMap&rsquo;s public
+             APIs. Geocode results are cached in your own browser&rsquo;s
+             localStorage so repeat searches stay polite to their servers.</p>
+        </details>
+        <details>
+          <summary>Can I run or modify it myself?</summary>
+          <p>Yes &mdash; it is MIT licensed and has no build step, no dependencies
+             and no keys. Three files. Clone it, open <code>index.html</code>, or
+             drop the folder on any static host.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <p>
+      Business data &copy; <a href="https://www.openstreetmap.org/copyright" rel="noopener">OpenStreetMap contributors</a>,
+      available under the <a href="https://opendatacommons.org/licenses/odbl/" rel="noopener">Open Database Licence</a>.
+      Geocoding by <a href="https://nominatim.openstreetmap.org/" rel="noopener">Nominatim</a>.
+    </p>
+    <p class="foot-meta">
+      Unlisted is free and open source under the MIT licence.
+      <!-- Hidden until a real Ko-fi link is set: see README "Monetizing" section.
+           Un-hide and set href once you've created your own Ko-fi page. -->
+      <a href="#" id="supportLink" hidden>Support this tool</a>
+    </p>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
