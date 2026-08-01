@@ -58,26 +58,6 @@ python3 -m http.server 8000
 
 Open `http://localhost:8000`.
 
-## Monetizing
-
-This is a free tool by design — no paywall, no signup, that's the whole
-value proposition for people finding it via search or a link. Realistic
-revenue paths that don't compromise that:
-
-1. **A tip jar.** [Ko-fi](https://ko-fi.com) takes 0% on one-off tips (vs
-   Buy Me a Coffee's 5%), and supporters don't need an account to send one —
-   only the *creator* does. `index.html` has a hidden `#supportLink` in the
-   footer, ready to un-hide once that link exists.
-2. **The tool as a portfolio piece / lead magnet for freelance work**, not
-   a product in itself — "I built the tool you're using right now" is a
-   strong opening line in outreach to the exact businesses it surfaces.
-
-None of this requires a backend or a schema change — it's additive whenever
-you're ready.
-
-### What only you can do (account creation is off-limits for the assistant)
-- Create the Ko-fi account and get your real tip-jar link, if you want one
-
 ## Rate limits and etiquette
 
 Nominatim and Overpass are volunteer-funded public infrastructure, not this
