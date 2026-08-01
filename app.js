@@ -330,8 +330,11 @@
       if (state.phoneOnly && !r.phone) return false;
       return true;
     }).sort(function (a, b) {
+      // sortDir consistently means -1 = descending, +1 = ascending for every
+      // column, so the visible sort-arrow indicator is never lying about
+      // which way a column is actually sorted.
       var k = state.sortKey;
-      if (k === "name") return a.name.localeCompare(b.name) * (state.sortDir === -1 ? 1 : -1);
+      if (k === "name") return a.name.localeCompare(b.name) * state.sortDir;
       return (a.score - b.score) * state.sortDir;
     });
   }
@@ -376,12 +379,26 @@
     ui.cat.value = state.category;
   }
 
+  // Visual feedback for which column is sorted and which direction -- the
+  // click behavior existed already but gave no indication of current state.
+  function updateSortIndicators() {
+    Array.prototype.forEach.call(document.querySelectorAll(".sortbtn"), function (b) {
+      if (b.dataset.sort === state.sortKey) {
+        b.setAttribute("data-dir", state.sortDir === -1 ? "desc" : "asc");
+      } else {
+        b.removeAttribute("data-dir");
+      }
+    });
+  }
+
   function renderTable() {
     var rows = visible();
     ui.body.innerHTML = "";
 
+    updateSortIndicators();
+
     if (!rows.length) {
-      var tr = el("tr");
+      var tr = el("tr", "empty-row");
       var td = el("td", "empty", "No businesses match these filters.");
       td.colSpan = 6;
       tr.appendChild(td);
@@ -394,10 +411,11 @@
     rows.forEach(function (r) {
       var tr = el("tr");
 
-      var tdS = el("td"); tdS.appendChild(el("span", "score", String(r.score)));
+      var tdS = el("td"); tdS.setAttribute("data-label", "Score");
+      tdS.appendChild(el("span", "score", String(r.score)));
       tr.appendChild(tdS);
 
-      var tdN = el("td");
+      var tdN = el("td"); tdN.setAttribute("data-label", "Business");
       tdN.appendChild(el("div", "bname", r.name));
       if (r.chain) {
         tdN.appendChild(el("div", "baddr", "chain" + (r.brand ? ": " + r.brand : "")));
@@ -409,17 +427,24 @@
       }
       tr.appendChild(tdN);
 
-      tr.appendChild(el("td", "bcat", prettyCat(r.category)));
+      var tdC = el("td", "bcat", prettyCat(r.category));
+      tdC.setAttribute("data-label", "Type");
+      tr.appendChild(tdC);
 
-      var tdP = el("td");
+      var tdP = el("td"); tdP.setAttribute("data-label", "Presence");
       var label = r.presence === "none" ? "No website"
         : r.presence === "social" ? "Social only" : "Has a site";
       tdP.appendChild(el("span", "tag " + r.presence, label));
       tr.appendChild(tdP);
 
       var addr = [r.street, r.city, r.postcode].filter(Boolean).join(", ");
-      tr.appendChild(el("td", "baddr", addr || "—"));
-      tr.appendChild(el("td", "bphone", r.phone || "—"));
+      var tdA = el("td", "baddr", addr || "—");
+      tdA.setAttribute("data-label", "Address");
+      tr.appendChild(tdA);
+
+      var tdPh = el("td", "bphone", r.phone || "—");
+      tdPh.setAttribute("data-label", "Phone");
+      tr.appendChild(tdPh);
 
       frag.appendChild(tr);
     });
@@ -486,9 +511,29 @@
     setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
   }
 
+  // ---------- shareable URL ----------
+  //
+  // A search someone spent real time filtering is worth sending to a
+  // colleague or bookmarking. Without this, "?place=" never existed, so a
+  // shared link or the back button after searching just landed back on the
+  // bare homepage with no way to recover what was being looked at.
+
+  function placeFromLocation() {
+    var p = new URLSearchParams(window.location.search).get("place");
+    return p ? p.trim() : "";
+  }
+
+  function pushPlaceUrl(place) {
+    var url = new URL(window.location.href);
+    if (place) url.searchParams.set("place", place);
+    else url.searchParams.delete("place");
+    history.pushState({ place: place || "" }, "", url.pathname + url.search);
+  }
+
   // ---------- search ----------
 
-  function run(place) {
+  function run(place, opts) {
+    opts = opts || {};
     var since = Date.now() - state.lastRun;
     if (since < MIN_GAP_MS) {
       setStatus("Give the OpenStreetMap servers a moment — try again in " +
@@ -496,6 +541,7 @@
       return;
     }
     state.lastRun = Date.now();
+    if (opts.pushState !== false) pushPlaceUrl(place);
 
     ui.btn.disabled = true;
     setStatus("Looking up " + place + "…", "working");
@@ -612,4 +658,30 @@
   });
 
   ui.exportBtn.addEventListener("click", exportCsv);
+
+  // Back/forward should feel like undo/redo through searches, not a dead end
+  // that dumps the visitor back on a blank homepage.
+  window.addEventListener("popstate", function (e) {
+    var place = (e.state && e.state.place) || placeFromLocation();
+    if (place) {
+      ui.input.value = place;
+      run(place, { pushState: false });
+    } else {
+      ui.input.value = "";
+      ui.shell.hidden = true;
+      setStatus("");
+      state.all = [];
+    }
+  });
+
+  // A link like unlisted.example/?place=Bozeman,%20Montana should actually
+  // show Bozeman's results, not just prefill the box -- that's the whole
+  // point of putting the search in the URL.
+  (function initFromUrl() {
+    var place = placeFromLocation();
+    if (place) {
+      ui.input.value = place;
+      run(place, { pushState: false });
+    }
+  })();
 })();

@@ -232,6 +232,9 @@ thead th {
   background: none; border: 0; color: inherit; font: inherit; cursor: pointer; padding: 0;
 }
 .sortbtn:hover { color: var(--text); }
+.sortbtn::after { content: ""; display: inline-block; margin-left: 5px; font-size: 9px; opacity: .7; }
+.sortbtn[data-dir="asc"]::after { content: "▲"; }
+.sortbtn[data-dir="desc"]::after { content: "▼"; }
 tbody td { padding: 12px 14px; border-bottom: 1px solid rgba(36,51,74,.6); vertical-align: top; }
 tbody tr:last-child td { border-bottom: 0; }
 tbody tr:hover { background: var(--panel-2); }
@@ -334,4 +337,31 @@ details p { margin: 0 0 20px; color: var(--muted); max-width: 68ch; font-size: 1
   .export { width: 100%; }
   .steps li { grid-template-columns: 1fr; gap: 6px; }
   .how, .faq { padding-top: 64px; }
+
+  /* A horizontally-scrolling table is a well-known bad mobile pattern --
+     the exact rows someone wants to compare end up split across a scroll.
+     Below 700px each row becomes a self-contained card instead, using
+     data-label attributes (set in app.js) for the field labels via
+     ::before, so no rendering logic has to be duplicated for mobile. */
+  .tablewrap { overflow: visible; border: 0; background: none; }
+  #resultsTable thead { display: none; }
+  #resultsTable, #resultsTable tbody { display: block; width: 100%; }
+  #resultsTable tr {
+    display: flex; flex-wrap: wrap; position: relative;
+    background: var(--panel); border: var(--rule); border-radius: 10px;
+    margin-bottom: 10px; padding: 16px;
+  }
+  #resultsTable tr:last-child { margin-bottom: 0; }
+  #resultsTable td { border-bottom: 0; padding: 0; vertical-align: baseline; }
+  #resultsTable td[data-label="Score"] { position: absolute; top: 16px; right: 16px; }
+  #resultsTable td[data-label="Business"] { width: 100%; padding-right: 54px; margin-bottom: 12px; }
+  #resultsTable td[data-label="Type"],
+  #resultsTable td[data-label="Presence"] { width: 50%; padding: 4px 0; }
+  #resultsTable td[data-label="Address"],
+  #resultsTable td[data-label="Phone"] { width: 100%; padding: 4px 0; }
+  #resultsTable td[data-label]:not([data-label="Score"]):not([data-label="Business"])::before {
+    content: attr(data-label); display: block; font-size: 10.5px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: .03em; color: var(--dim); margin-bottom: 2px;
+  }
+  #resultsTable tr.empty-row { display: block; padding: 0; background: none; border: 0; }
 }
